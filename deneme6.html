@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CANRUN — Can I Run It?</title>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05060a;--bg2:#090c13;--panel:rgba(14,18,29,.82);--panel2:#111727;--border:#242c3d;
+  --text:#f5f7fb;--muted:#8b95aa;--blue:#638cff;--cyan:#39dcff;--green:#32e39a;--yellow:#ffc857;--red:#ff526d;
+  --shadow:0 20px 70px rgba(0,0,0,.28);--radius:20px;
+}
+html{scroll-behavior:smooth}
+body{font-family:Inter,Arial,sans-serif;color:var(--text);min-height:100vh;overflow-x:hidden;background:
+ radial-gradient(circle at 8% 0%,rgba(99,140,255,.18),transparent 30%),radial-gradient(circle at 90% 8%,rgba(57,220,255,.09),transparent 25%),var(--bg);transition:background .45s ease,color .35s ease}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.025;background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:40px 40px;z-index:-2}
+body:after{content:"";position:fixed;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(75,125,255,.09),transparent 70%);top:-260px;left:-120px;animation:floatingLight 12s ease-in-out infinite alternate;pointer-events:none;z-index:-1}
+@keyframes floatingLight{from{transform:translate(0,0)}to{transform:translate(100vw,500px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes iconPop{0%{transform:scale(.7) rotate(-8deg);opacity:.5}55%{transform:scale(1.16) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+@keyframes resultIn{from{opacity:0;transform:scale(.985) translateY(6px)}to{opacity:1;transform:none}}
+@keyframes lemonPop{0%{transform:scale(1)}45%{transform:scale(1.35) rotate(18deg)}100%{transform:scale(1)}}
+.container{width:min(1320px,92%);margin:auto}
+button,input,select{font:inherit}
+button{color:inherit}
+.header{display:flex;align-items:center;justify-content:space-between;padding:24px 0 12px;gap:20px}
+.logo{display:flex;align-items:center;gap:12px;font-size:23px;font-weight:900;letter-spacing:-.8px}.logo span{color:var(--blue)}
+.logoIcon{width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(99,140,255,.3);border-radius:14px;background:linear-gradient(135deg,rgba(99,140,255,.18),rgba(57,220,255,.06));box-shadow:0 8px 30px rgba(44,90,220,.18)}
+.headerRight{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.headerBadge,.miniBadge{font-size:11px;color:var(--muted);letter-spacing:1.2px;border:1px solid var(--border);padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.03)}
+.iconBtn,.lemonEgg{width:44px;height:44px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.045);display:grid;place-items:center;cursor:pointer;transition:.2s ease;backdrop-filter:blur(12px)}
+.iconBtn:hover,.lemonEgg:hover{transform:translateY(-2px);background:rgba(255,255,255,.08);box-shadow:0 10px 30px rgba(0,0,0,.22)}
+.lemonEgg{position:fixed;top:18px;right:18px;z-index:9999;border-radius:50%;font-size:23px}.lemonEgg.pop{animation:lemonPop .45s ease}
+.hero{padding:56px 0 22px;text-align:center}.hero h1{font-size:clamp(42px,6vw,76px);line-height:.98;letter-spacing:-3.5px}.gradient{background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:760px;margin:20px auto 0;color:var(--muted);font-size:15px;line-height:1.7}
+.searchWrap{display:flex;gap:10px;max-width:850px;margin:28px auto 0}.search{position:relative;flex:1}.search input{width:100%;height:58px;padding:0 18px 0 52px;border:1px solid var(--border);border-radius:17px;outline:none;color:var(--text);background:rgba(10,14,23,.88);box-shadow:var(--shadow);transition:.2s}.search input:focus{border-color:rgba(99,140,255,.6);box-shadow:0 0 0 4px rgba(99,140,255,.08),var(--shadow)}.search .searchIcon{position:absolute;left:18px;top:50%;transform:translateY(-50%);opacity:.7}
+.btn{height:48px;padding:0 16px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.045);cursor:pointer;transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.075)}.btn.primary{background:linear-gradient(135deg,#597fff,#4b92ff);border-color:rgba(125,180,255,.35);box-shadow:0 10px 28px rgba(67,118,255,.2)}.btn.primary:hover{box-shadow:0 14px 34px rgba(67,118,255,.28)}.btn.small{height:38px;padding:0 12px;border-radius:11px;font-size:12px}.btn.active{border-color:rgba(99,140,255,.6);background:rgba(99,140,255,.12)}
+.toolbar{display:grid;grid-template-columns:1.2fr .75fr .75fr auto;gap:10px;margin:18px 0}.control{height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--border);background:rgba(13,17,27,.85);color:var(--text);outline:none}.control:focus{border-color:rgba(99,140,255,.5)}
+.sectionHead{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:28px 0 13px}.sectionHead h2{font-size:18px;letter-spacing:-.4px}.sectionHead span{color:var(--muted);font-size:12px}
+.games{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.game{position:relative;min-height:154px;border:1px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;background:linear-gradient(180deg,rgba(17,22,35,.92),rgba(10,13,21,.95));box-shadow:0 12px 35px rgba(0,0,0,.14);animation:fadeUp .45s both;transition:.23s}.game:hover{transform:translateY(-4px);border-color:rgba(99,140,255,.42);box-shadow:0 18px 44px rgba(0,0,0,.25)}.game.selected{border-color:rgba(99,140,255,.8);box-shadow:0 0 0 1px rgba(99,140,255,.14),0 18px 44px rgba(0,0,0,.3)}
+.art{position:absolute;inset:0;background:linear-gradient(135deg,#18223a,#080b12);opacity:.75}.art:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,rgba(4,6,10,.96) 93%)}
+.gameIcon{position:relative;width:52px;height:52px;margin:16px;border-radius:15px;display:grid;place-items:center;font-size:28px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px)}.gameInfo{position:absolute;left:16px;right:44px;bottom:14px}.gameInfo h3{font-size:14px;line-height:1.25;margin-bottom:4px}.gameInfo p{font-size:11px;color:var(--muted)}
+.favorite{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.18);cursor:pointer;z-index:2}.favorite.on{background:rgba(255,82,109,.12);color:#ff7d91;border-color:rgba(255,82,109,.35)}
+.empty{display:none;padding:25px;border:1px dashed var(--border);border-radius:16px;color:var(--muted);text-align:center;margin-top:14px}
+.dashboard{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;margin-top:16px}.panel{border:1px solid var(--border);border-radius:22px;background:var(--panel);backdrop-filter:blur(18px);box-shadow:var(--shadow)}
+.checker{margin-top:18px;display:block;scroll-margin-top:18px}.panelInner{padding:22px}.selected{display:flex;align-items:center;gap:14px}.selectedIcon{width:68px;height:68px;border-radius:20px;display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg,rgba(99,140,255,.14),rgba(57,220,255,.05));border:1px solid rgba(99,140,255,.25)}.selectedIcon.pop{animation:iconPop .45s ease}.selected h2{font-size:22px}.selected p{color:var(--muted);margin-top:4px;font-size:12px}
+.panelHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.panelHead h3{font-size:15px}.panelHead small{color:var(--muted)}
+.builder{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}.field{padding:13px;border:1px solid var(--border);border-radius:15px;background:rgba(255,255,255,.02)}.field label{display:block;font-size:10px;letter-spacing:.8px;color:var(--muted);font-weight:800;margin-bottom:8px}.field select,.field input{width:100%;height:40px;border:1px solid var(--border);border-radius:11px;background:rgba(7,10,16,.82);color:var(--text);padding:0 11px;outline:none}.field select:focus{border-color:rgba(99,140,255,.5)}
+.actionRow{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.profileName{flex:1;min-width:170px}.profileName input{width:100%;height:42px;padding:0 12px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);border-radius:12px;outline:none}.profileName input:focus{border-color:rgba(99,140,255,.5)}
+.requirements{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.req{border:1px solid var(--border);border-radius:16px;padding:16px;background:rgba(255,255,255,.018)}.req h3{font-size:12px;margin-bottom:10px}.reqRow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed rgba(255,255,255,.06)}.reqRow:last-child{border-bottom:0}.reqRow span{color:var(--muted);font-size:12px}.reqRow strong{font-size:12px;text-align:right}
+.result{margin-top:14px;border:1px solid var(--border);border-radius:17px;padding:15px;display:flex;align-items:center;justify-content:space-between;gap:15px;animation:resultIn .4s ease}.resultLeft{display:flex;align-items:center;gap:13px;min-width:0}.resultIcon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:20px;font-weight:900}.result h3{font-size:14px;margin-bottom:4px}.result p{font-size:11px;color:var(--muted);line-height:1.5}.result.green{background:rgba(50,227,154,.055);border-color:rgba(50,227,154,.23)}.result.green .resultIcon{background:rgba(50,227,154,.12);color:var(--green)}.result.yellow{background:rgba(255,200,87,.055);border-color:rgba(255,200,87,.24)}.result.yellow .resultIcon{background:rgba(255,200,87,.12);color:var(--yellow)}.result.red{background:rgba(255,82,109,.055);border-color:rgba(255,82,109,.24)}.result.red .resultIcon{background:rgba(255,82,109,.12);color:var(--red)}
+.fps{text-align:right;min-width:100px}.fps strong{display:block;font-size:25px}.fps span{font-size:9px;color:var(--muted);letter-spacing:1px}
+.scores{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}.score{border:1px solid var(--border);border-radius:15px;padding:13px;background:rgba(255,255,255,.018)}.scoreTop{display:flex;justify-content:space-between;gap:8px;margin-bottom:9px}.scoreTop span{font-size:11px;color:var(--muted)}.scoreTop strong{font-size:11px}.bar{height:7px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:inherit;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.settings{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.settingCard{border:1px solid var(--border);border-radius:16px;padding:14px;background:rgba(255,255,255,.018)}.settingCard label{display:block;font-size:10px;letter-spacing:.7px;color:var(--muted);font-weight:800;margin-bottom:8px}.settingCard select{width:100%;height:41px;border:1px solid var(--border);border-radius:11px;background:rgba(7,10,16,.82);color:var(--text);padding:0 10px;outline:none}
+.fpsTable{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.fpsBox{border:1px solid var(--border);border-radius:14px;padding:13px;text-align:center;background:rgba(255,255,255,.018)}.fpsBox span{display:block;font-size:10px;color:var(--muted);margin-bottom:5px}.fpsBox strong{font-size:19px}
+.recommend{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.advice{border:1px solid var(--border);border-radius:16px;padding:15px;background:rgba(255,255,255,.018)}.advice h4{font-size:12px;margin-bottom:8px}.advice p{font-size:11px;line-height:1.65;color:var(--muted)}
+.sidePanel{padding:20px}.pcScoreBox{border:1px solid var(--border);border-radius:18px;padding:18px;background:linear-gradient(135deg,rgba(99,140,255,.08),rgba(57,220,255,.035));text-align:center}.pcScoreBox .num{font-size:55px;line-height:1;font-weight:900;letter-spacing:-3px}.pcScoreBox .label{color:var(--muted);font-size:11px;margin-top:7px}.scoreRing{width:160px;height:160px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;background:conic-gradient(var(--blue) calc(var(--score,0)*1%),rgba(255,255,255,.06) 0);position:relative}.scoreRing:after{content:"";position:absolute;inset:11px;border-radius:50%;background:#0b0f17}.scoreRing>*{position:relative;z-index:1}
+.statusGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.statusCard{border:1px solid var(--border);border-radius:14px;padding:13px}.statusCard span{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.statusCard strong{font-size:12px}.pass{color:var(--green)}.warn{color:var(--yellow)}.fail{color:var(--red)}
+.sideSection{margin-top:14px}.sideSection h3{font-size:13px;margin-bottom:10px}.list{display:flex;flex-direction:column;gap:8px}.listItem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:13px;background:rgba(255,255,255,.015)}.listItem .left{display:flex;align-items:center;gap:9px;min-width:0}.listItem .ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.06)}.listItem b{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.listItem small{color:var(--muted);font-size:9px}
+.compare{margin-top:18px}.compareGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.compareCol{padding:18px}.compareResult{margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.compareStat{border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center}.compareStat span{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.compareStat strong{font-size:15px}
+.compatTools{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.filterBanner{display:none;margin:14px 0 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(50,227,154,.22);background:rgba(50,227,154,.05);font-size:12px;color:#c9ffe9}.filterBanner.on{display:flex;align-items:center;justify-content:space-between;gap:10px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:32px 0 42px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;padding:12px 15px;border:1px solid var(--border);border-radius:13px;background:rgba(12,16,25,.95);box-shadow:var(--shadow);font-size:12px;z-index:99999;transition:.25s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal{position:fixed;inset:0;background:rgba(3,5,9,.68);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:10000;padding:20px}.modal.open{display:flex}.modalCard{width:min(760px,100%);max-height:88vh;overflow:auto;border:1px solid var(--border);border-radius:22px;background:#0c111b;box-shadow:0 30px 90px rgba(0,0,0,.45);padding:20px}.modalHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.modalHead h3{font-size:17px}.close{width:38px;height:38px;border:1px solid var(--border);border-radius:11px;background:rgba(255,255,255,.04);cursor:pointer}.themeGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.themeOption{border:1px solid var(--border);border-radius:15px;padding:14px;text-align:left;background:rgba(255,255,255,.02);cursor:pointer}.themeOption:hover{border-color:rgba(99,140,255,.45)}.themeDot{width:28px;height:28px;border-radius:50%;margin-bottom:9px;border:1px solid rgba(255,255,255,.14)}
+body.light{--bg:#eef2f8;--bg2:#fff;--panel:rgba(255,255,255,.86);--panel2:#fff;--border:#dce3ee;--text:#152033;--muted:#647086;--blue:#4d74ff;--cyan:#11a7cc;box-shadow:none;background:radial-gradient(circle at 8% 0%,rgba(99,140,255,.2),transparent 30%),#eef2f8}body.light:before{opacity:.035}.light .game,.light .field select,.light .settingCard select,.light .control,.light .search input,.light .profileName input{background:rgba(255,255,255,.8)}
+body.lemonMode{--bg:#ffe500;--panel:rgba(255,248,190,.35);--border:rgba(80,65,0,.2);--text:#332f00;--muted:rgba(55,48,0,.72);background:radial-gradient(circle at 10% 0%,rgba(255,255,255,.26),transparent 30%),#ffe500}body.lemonMode:before{opacity:.06}body.lemonMode .panel,body.lemonMode .game,body.lemonMode .field,body.lemonMode .req,body.lemonMode .score,body.lemonMode .settingCard,body.lemonMode .statusCard,body.lemonMode .compareCol,body.lemonMode .advice,body.lemonMode .fpsBox,body.lemonMode .compareStat,body.lemonMode .listItem{background:rgba(255,248,190,.24)}body.lemonMode .search input,body.lemonMode .field select,body.lemonMode .settingCard select,body.lemonMode .control,body.lemonMode .profileName input{background:rgba(80,65,0,.12);color:var(--text)}
+@media(max-width:1100px){.games{grid-template-columns:repeat(3,1fr)}.dashboard{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr 1fr 1fr auto}}
+@media(max-width:820px){.games{grid-template-columns:repeat(2,1fr)}.builder{grid-template-columns:1fr 1fr}.requirements,.settings,.recommend,.compareGrid{grid-template-columns:1fr}.scores{grid-template-columns:1fr 1fr}.fpsTable{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr 1fr}.toolbar .btn{grid-column:span 2}.hero h1{letter-spacing:-2.3px}}
+@media(max-width:560px){.container{width:min(94%,1320px)}.headerBadge{display:none}.hero{padding-top:40px}.searchWrap{flex-direction:column}.games{grid-template-columns:1fr}.builder{grid-template-columns:1fr}.scores{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.toolbar .btn{grid-column:auto}.result{align-items:flex-start;flex-direction:column}.fps{text-align:left}.compareResult{grid-template-columns:1fr}.themeGrid{grid-template-columns:1fr}.lemonEgg{right:10px;top:10px}}
+
+.sideTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}.miniBtn{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);border-radius:9px;padding:6px 9px;font-size:11px;cursor:pointer}
+</style>
+</head>
+<body>
+<button class="lemonEgg" id="lemonEgg" title="Limon Easter Egg" aria-label="Limon Easter Egg">🍋</button>
+<div class="container">
+<header class="header">
+  <div class="logo"><div class="logoIcon">⚡</div>CAN<span>RUN</span></div>
+  <div class="headerRight">
+    <div class="miniBadge" id="profileBadge">PC: Kaydedilmedi</div>
+    <div class="headerBadge">PC REQUIREMENT ANALYZER</div>
+    <button class="iconBtn" id="themeBtn" title="Tema">🎨</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Bu oyun <span class="gradient">kaldırır mı?</span></h1>
+  <p>Bilgisayarını oluştur, oyunu seç ve CANRUN sistem gereksinimleri, tahmini FPS, depolama alanı ve önerilen ayarları tek ekranda hesaplasın.</p>
+  <div class="searchWrap">
+    <div class="search"><span class="searchIcon">🔎</span><input id="search" placeholder="Oyun ara... GTA, RDR2, Minecraft, ARC Raiders" autocomplete="off"></div>
+    <button class="btn primary" id="findGamesBtn">🎯 PC'me uygun oyunları bul</button>
+  </div>
+</section>
+
+<div class="toolbar">
+  <select class="control" id="genreFilter"><option value="all">🎮 Tüm türler</option></select>
+  <select class="control" id="sortSelect"><option value="name">A-Z sırala</option><option value="fps">Tahmini FPS yüksek</option><option value="storageLow">Az depolama isteyen</option><option value="storageHigh">Çok depolama isteyen</option><option value="recent">Son baktıklarım</option></select>
+  <select class="control" id="compatFilter"><option value="all">🧩 Tüm oyunlar</option><option value="canrun">🟢 Bilgisayarım çalıştırır</option><option value="maybe">🟡 Zorlanabilir</option><option value="cannot">🔴 Çalıştıramaz</option><option value="favorites">❤️ Favoriler</option></select>
+  <button class="btn" id="resetFilters">↻ Filtreleri sıfırla</button>
+</div>
+<div class="filterBanner" id="filterBanner"><span>🎯 Bilgisayarına uygun oyunlar filtreleniyor.</span><button class="btn small" id="clearPcFilter">Kapat</button></div>
+
+<div class="sectionHead"><h2>🎮 Oyunlar</h2><span id="count"></span></div>
+<div class="games" id="games"></div>
+<div class="empty" id="empty">Aradığın filtrelerle eşleşen oyun bulunamadı.</div>
+
+<section class="checker" id="checker">
+<div class="dashboard">
+<div class="panel">
+<div class="panelInner">
+  <div class="panelHead"><div><h3>🛠️ PC oluşturucu</h3><small>Seçtiğin sistem tarayıcıda kaydedilebilir.</small></div><button class="btn small" id="loadPcBtn">📥 Kayıtlı PC'yi yükle</button></div>
+  <div class="selected"><div class="selectedIcon" id="selectedIcon">🎮</div><div><h2 id="selectedName">Henüz oyun seçmedin</h2><p id="selectedGenre">Bir oyuna tıklayarak analizi başlat.</p></div></div>
+
+  <div class="builder">
+    <div class="field"><label>🧠 İŞLEMCİ</label><select id="cpu">
+
+<optgroup label="Intel Core">
+
+<option value="2">Core i3-6100</option>
+<option value="3">Core i3-10100F</option>
+<option value="3">Core i3-12100F</option>
+<option value="4">Core i3-13100F</option>
+
+<option value="4">Core i5-9400F</option>
+<option value="5">Core i5-10400F</option>
+<option value="5">Core i5-11400F</option>
+<option value="6">Core i5-12400F</option>
+<option value="6">Core i5-13400F</option>
+<option value="7">Core i5-13600K</option>
+<option value="7">Core i5-14600K</option>
+
+<option value="5">Core i7-8700K</option>
+<option value="6">Core i7-10700K</option>
+<option value="7">Core i7-11700K</option>
+<option value="8" selected>Core i7-12700K</option>
+<option value="8">Core i7-13700H</option>
+<option value="8">Core i7-13700K</option>
+<option value="9">Core i7-14700K</option>
+
+<option value="8">Core i9-10900K</option>
+<option value="8">Core i9-11900K</option>
+<option value="9">Core i9-12900K</option>
+<option value="9">Core i9-13900K</option>
+<option value="10">Core i9-14900K</option>
+
+</optgroup>
+
+
+<optgroup label="AMD Ryzen">
+
+<option value="3">Ryzen 3 3100</option>
+<option value="3">Ryzen 3 3300X</option>
+<option value="4">Ryzen 3 4100</option>
+<option value="4">Ryzen 3 5300G</option>
+
+<option value="5">Ryzen 5 3600</option>
+<option value="5">Ryzen 5 4500</option>
+<option value="5">Ryzen 5 5500</option>
+<option value="6">Ryzen 5 5600</option>
+<option value="6">Ryzen 5 5600X</option>
+<option value="6">Ryzen 5 7600</option>
+<option value="7">Ryzen 5 7600X</option>
+<option value="7">Ryzen 5 9600X</option>
+
+<option value="6">Ryzen 7 3700X</option>
+<option value="7">Ryzen 7 5700X</option>
+<option value="8">Ryzen 7 5800X</option>
+<option value="8">Ryzen 7 5800X3D</option>
+<option value="8">Ryzen 7 7700X</option>
+<option value="9">Ryzen 7 7800X3D</option>
+<option value="9">Ryzen 7 9700X</option>
+<option value="10">Ryzen 7 9800X3D</option>
+
+<option value="8">Ryzen 9 5900X</option>
+<option value="8">Ryzen 9 5950X</option>
+<option value="9">Ryzen 9 7900X</option>
+<option value="9">Ryzen 9 7950X</option>
+<option value="10">Ryzen 9 7950X3D</option>
+<option value="10">Ryzen 9 9950X</option>
+<option value="10">Ryzen 9 9950X3D</option>
+
+</optgroup>
+
+</select></div>
+    <div class="field"><label>🎮 EKRAN KARTI</label><select id="gpu">
+
+<optgroup label="NVIDIA">
+
+<option value="2">GTX 1050</option>
+<option value="2">GTX 1050 Ti</option>
+<option value="3">GTX 1650</option>
+<option value="3">GTX 1660</option>
+<option value="4">GTX 1660 Ti</option>
+<option value="4">GTX 1660 Super</option>
+<option value="5">RTX 2060</option>
+<option value="5">RTX 2060 Super</option>
+<option value="5">RTX 2070</option>
+<option value="6">RTX 3060</option>
+<option value="6">RTX 3060 Ti</option>
+<option value="7">RTX 3070</option>
+<option value="7">RTX 3070 Ti</option>
+<option value="7">RTX 4060</option>
+<option value="8">RTX 4060 Ti</option>
+<option value="8">RTX 4070</option>
+<option value="8">RTX 4070 Super</option>
+<option value="9">RTX 4070 Ti Super</option>
+<option value="9">RTX 4080</option>
+<option value="10">RTX 4080 Super</option>
+<option value="10">RTX 4090</option>
+<option value="10">RTX 5090</option>
+
+</optgroup>
+
+
+<optgroup label="AMD Radeon">
+
+<option value="2">RX 550</option>
+<option value="2">RX 560</option>
+<option value="3">RX 570</option>
+<option value="4">RX 580</option>
+<option value="4">RX 590</option>
+<option value="5">RX 5600 XT</option>
+<option value="5">RX 5700 XT</option>
+<option value="6">RX 6600</option>
+<option value="6">RX 6650 XT</option>
+<option value="7">RX 6700 XT</option>
+<option value="7">RX 6750 XT</option>
+<option value="7">RX 7600</option>
+<option value="8">RX 7700 XT</option>
+<option value="8">RX 7800 XT</option>
+<option value="9">RX 7900 XT</option>
+<option value="10">RX 7900 XTX</option>
+
+</optgroup>
+
+
+<optgroup label="Intel Arc">
+
+<option value="3">Arc A380</option>
+<option value="4">Arc A580</option>
+<option value="5">Arc A750</option>
+<option value="6">Arc A770</option>
+<option value="7">Arc B570</option>
+<option value="8">Arc B580</option>
+
+</optgroup>
+
+</select></div>
+    <div class="field"><label>💾 RAM</label><select id="ram"><option value="4">4 GB</option><option value="8">8 GB</option><option value="16" selected>16 GB</option><option value="32">32 GB</option><option value="64">64 GB</option><option value="128">128 GB</option></select></div>
+    <div class="field"><label>💿 BOŞ DEPOLAMA</label><select id="storage"><option value="10">10 GB</option><option value="20">20 GB</option><option value="30">30 GB</option><option value="40">40 GB</option><option value="50">50 GB</option><option value="75">75 GB</option><option value="100">100 GB</option><option value="150">150 GB</option><option value="200">200 GB</option><option value="300">300 GB</option><option value="500">500 GB</option><option value="1000">1 TB+</option></select></div>
+  </div>
+  <div class="actionRow"><div class="profileName"><input id="profileName" placeholder="PC adına bir isim ver (örn. Benim Monster)" maxlength="32"></div><button class="btn primary" id="savePcBtn">💾 PC'yi kaydet</button><button class="btn" id="myPcGamesBtn">🎮 PC'mde çalışan oyunlar</button><button class="btn" id="favoriteBtn">❤️ Favoriye ekle</button></div>
+
+  <div class="requirements">
+    <div class="req"><h3>🔻 Minimum Gereksinimler</h3><div class="reqRow"><span>İşlemci</span><strong id="minCPU">-</strong></div><div class="reqRow"><span>Ekran Kartı</span><strong id="minGPU">-</strong></div><div class="reqRow"><span>RAM</span><strong id="minRAM">-</strong></div><div class="reqRow"><span>Depolama</span><strong id="minStorage">-</strong></div></div>
+    <div class="req"><h3>🔺 Önerilen Gereksinimler</h3><div class="reqRow"><span>İşlemci</span><strong id="recCPU">-</strong></div><div class="reqRow"><span>Ekran Kartı</span><strong id="recGPU">-</strong></div><div class="reqRow"><span>RAM</span><strong id="recRAM">-</strong></div><div class="reqRow"><span>Depolama</span><strong id="recStorage">-</strong></div></div>
+  </div>
+
+  <div class="result green" id="result"><div class="resultLeft"><div class="resultIcon" id="resultIcon">?</div><div><h3 id="resultTitle">Sonuç bekleniyor</h3><p id="resultDescription">Bir oyun seçtiğinde sistemin analiz edilecek.</p></div></div><div class="fps"><strong id="fps">--</strong><span>TAHMİNİ FPS · 1080P</span></div></div>
+
+  <div class="scores">
+    <div class="score"><div class="scoreTop"><span>CPU</span><strong id="cpuScore">0%</strong></div><div class="bar"><div class="fill" id="cpuFill"></div></div></div>
+    <div class="score"><div class="scoreTop"><span>GPU</span><strong id="gpuScore">0%</strong></div><div class="bar"><div class="fill" id="gpuFill"></div></div></div>
+    <div class="score"><div class="scoreTop"><span>RAM</span><strong id="ramScore">0%</strong></div><div class="bar"><div class="fill" id="ramFill"></div></div></div>
+    <div class="score"><div class="scoreTop"><span>Depolama</span><strong id="storageScore">0%</strong></div><div class="bar"><div class="fill" id="storageFill"></div></div></div>
+  </div>
+
+  <div class="settings">
+    <div class="settingCard"><label>🎚️ Grafik kalitesi</label><select id="quality"><option value=".65">Low</option><option value=".8" selected>Medium</option><option value="1">High</option><option value="1.25">Ultra</option></select></div>
+    <div class="settingCard"><label>🧠 Hedef</label><select id="targetFps"><option value="60" selected>60 FPS hedefi</option><option value="90">90 FPS hedefi</option><option value="120">120 FPS hedefi</option><option value="144">144 FPS hedefi</option></select></div>
+  </div>
+  <div class="fpsTable" id="fpsTable"></div>
+  <div class="recommend"><div class="advice"><h4>🔧 Önerilen ayarlar</h4><p id="settingsAdvice">Oyun seçildiğinde grafik ayarı tavsiyesi burada görünecek.</p></div><div class="advice"><h4>⚠️ Darboğaz / not</h4><p id="bottleneckAdvice">CPU ve GPU oranları karşılaştırıldığında tahmini denge burada gösterilecek.</p></div></div>
+</div>
+</div>
+
+<aside class="panel sidePanel">
+  <div class="pcScoreBox"><div class="scoreRing" id="scoreRing"><div><div class="num" id="overallScore">0</div><div class="label">PC OYUN SKORU</div></div></div><p id="overallLabel" style="color:var(--muted);font-size:11px">Henüz analiz yapılmadı.</p></div>
+  <div class="statusGrid"><div class="statusCard"><span>CPU</span><strong id="cpuState">—</strong></div><div class="statusCard"><span>GPU</span><strong id="gpuState">—</strong></div><div class="statusCard"><span>RAM</span><strong id="ramState">—</strong></div><div class="statusCard"><span>Depolama</span><strong id="storageState">—</strong></div></div>
+  <div class="sideSection"><h3>⭐ Favoriler</h3><div class="list" id="favoritesList"></div></div>
+  <div class="sideSection"><div class="sideTitle"><h3>🕘 Son baktıkların</h3><button class="miniBtn" id="clearRecentBtn" title="Geçmişi temizle">Temizle</button></div><div class="list" id="recentList"></div></div>
+</aside>
+</div>
+</section>
+
+<section class="compare" id="compare">
+<div class="panel"><div class="panelInner">
+  <div class="panelHead"><div><h3>⚖️ PC karşılaştır</h3><small>İki sistemi aynı oyun üzerinde karşılaştır.</small></div><button class="btn small" id="swapCompareBtn">⇄ Değiştir</button></div>
+  <div class="compareGrid">
+    <div class="compareCol"><div class="panelHead"><h3>💻 PC A</h3><small id="compareScoreA">0 puan</small></div>
+      <div class="builder" style="grid-template-columns:1fr 1fr"><div class="field"><label>CPU</label><select id="cpuA">
+
+<optgroup label="Intel Core">
+
+<option value="2">Core i3-6100</option>
+<option value="3">Core i3-10100F</option>
+<option value="3">Core i3-12100F</option>
+<option value="4">Core i3-13100F</option>
+
+<option value="4">Core i5-9400F</option>
+<option value="5">Core i5-10400F</option>
+<option value="5">Core i5-11400F</option>
+<option value="6">Core i5-12400F</option>
+<option value="6">Core i5-13400F</option>
+<option value="7">Core i5-13600K</option>
+<option value="7">Core i5-14600K</option>
+
+<option value="5">Core i7-8700K</option>
+<option value="6">Core i7-10700K</option>
+<option value="7">Core i7-11700K</option>
+<option value="8" selected>Core i7-12700K</option>
+<option value="8">Core i7-13700H</option>
+<option value="8">Core i7-13700K</option>
+<option value="9">Core i7-14700K</option>
+
+<option value="8">Core i9-10900K</option>
+<option value="8">Core i9-11900K</option>
+<option value="9">Core i9-12900K</option>
+<option value="9">Core i9-13900K</option>
+<option value="10">Core i9-14900K</option>
+
+</optgroup>
+
+
+<optgroup label="AMD Ryzen">
+
+<option value="3">Ryzen 3 3100</option>
+<option value="3">Ryzen 3 3300X</option>
+<option value="4">Ryzen 3 4100</option>
+<option value="4">Ryzen 3 5300G</option>
+
+<option value="5">Ryzen 5 3600</option>
+<option value="5">Ryzen 5 4500</option>
+<option value="5">Ryzen 5 5500</option>
+<option value="6">Ryzen 5 5600</option>
+<option value="6">Ryzen 5 5600X</option>
+<option value="6">Ryzen 5 7600</option>
+<option value="7">Ryzen 5 7600X</option>
+<option value="7">Ryzen 5 9600X</option>
+
+<option value="6">Ryzen 7 3700X</option>
+<option value="7">Ryzen 7 5700X</option>
+<option value="8">Ryzen 7 5800X</option>
+<option value="8">Ryzen 7 5800X3D</option>
+<option value="8">Ryzen 7 7700X</option>
+<option value="9">Ryzen 7 7800X3D</option>
+<option value="9">Ryzen 7 9700X</option>
+<option value="10">Ryzen 7 9800X3D</option>
+
+<option value="8">Ryzen 9 5900X</option>
+<option value="8">Ryzen 9 5950X</option>
+<option value="9">Ryzen 9 7900X</option>
+<option value="9">Ryzen 9 7950X</option>
+<option value="10">Ryzen 9 7950X3D</option>
+<option value="10">Ryzen 9 9950X</option>
+<option value="10">Ryzen 9 9950X3D</option>
+
+</optgroup>
+
+</select></div><div class="field"><label>GPU</label><select id="gpuA">
+
+<optgroup label="NVIDIA">
+
+<option value="2">GTX 1050</option>
+<option value="2">GTX 1050 Ti</option>
+<option value="3">GTX 1650</option>
+<option value="3">GTX 1660</option>
+<option value="4">GTX 1660 Ti</option>
+<option value="4">GTX 1660 Super</option>
+<option value="5">RTX 2060</option>
+<option value="5">RTX 2060 Super</option>
+<option value="5">RTX 2070</option>
+<option value="6">RTX 3060</option>
+<option value="6">RTX 3060 Ti</option>
+<option value="7">RTX 3070</option>
+<option value="7">RTX 3070 Ti</option>
+<option value="7">RTX 4060</option>
+<option value="8">RTX 4060 Ti</option>
+<option value="8">RTX 4070</option>
+<option value="8">RTX 4070 Super</option>
+<option value="9">RTX 4070 Ti Super</option>
+<option value="9">RTX 4080</option>
+<option value="10">RTX 4080 Super</option>
+<option value="10">RTX 4090</option>
+<option value="10">RTX 5090</option>
+
+</optgroup>
+
+
+<optgroup label="AMD Radeon">
+
+<option value="2">RX 550</option>
+<option value="2">RX 560</option>
+<option value="3">RX 570</option>
+<option value="4">RX 580</option>
+<option value="4">RX 590</option>
+<option value="5">RX 5600 XT</option>
+<option value="5">RX 5700 XT</option>
+<option value="6">RX 6600</option>
+<option value="6">RX 6650 XT</option>
+<option value="7">RX 6700 XT</option>
+<option value="7">RX 6750 XT</option>
+<option value="7">RX 7600</option>
+<option value="8">RX 7700 XT</option>
+<option value="8">RX 7800 XT</option>
+<option value="9">RX 7900 XT</option>
+<option value="10">RX 7900 XTX</option>
+
+</optgroup>
+
+
+<optgroup label="Intel Arc">
+
+<option value="3">Arc A380</option>
+<option value="4">Arc A580</option>
+<option value="5">Arc A750</option>
+<option value="6">Arc A770</option>
+<option value="7">Arc B570</option>
+<option value="8">Arc B580</option>
+
+</optgroup>
+
+</select></div><div class="field"><label>RAM</label><select id="ramA"><option value="4">4 GB</option><option value="8">8 GB</option><option value="16" selected>16 GB</option><option value="32">32 GB</option><option value="64">64 GB</option></select></div><div class="field"><label>BOŞ ALAN</label><select id="storageA"><option value="20">20 GB</option><option value="50">50 GB</option><option value="100" selected>100 GB</option><option value="150">150 GB</option><option value="250">250 GB</option><option value="500">500 GB</option></select></div></div></div>
+    <div class="compareCol"><div class="panelHead"><h3>🖥️ PC B</h3><small id="compareScoreB">0 puan</small></div>
+      <div class="builder" style="grid-template-columns:1fr 1fr"><div class="field"><label>CPU</label><select id="cpuB">
+
+<optgroup label="Intel Core">
+
+<option value="2">Core i3-6100</option>
+<option value="3">Core i3-10100F</option>
+<option value="3">Core i3-12100F</option>
+<option value="4">Core i3-13100F</option>
+
+<option value="4">Core i5-9400F</option>
+<option value="5">Core i5-10400F</option>
+<option value="5">Core i5-11400F</option>
+<option value="6">Core i5-12400F</option>
+<option value="6">Core i5-13400F</option>
+<option value="7">Core i5-13600K</option>
+<option value="7">Core i5-14600K</option>
+
+<option value="5">Core i7-8700K</option>
+<option value="6">Core i7-10700K</option>
+<option value="7">Core i7-11700K</option>
+<option value="8">Core i7-12700K</option>
+<option value="8">Core i7-13700H</option>
+<option value="8">Core i7-13700K</option>
+<option value="9">Core i7-14700K</option>
+
+<option value="8">Core i9-10900K</option>
+<option value="8">Core i9-11900K</option>
+<option value="9">Core i9-12900K</option>
+<option value="9">Core i9-13900K</option>
+<option value="10">Core i9-14900K</option>
+
+</optgroup>
+
+
+<optgroup label="AMD Ryzen">
+
+<option value="3">Ryzen 3 3100</option>
+<option value="3">Ryzen 3 3300X</option>
+<option value="4">Ryzen 3 4100</option>
+<option value="4">Ryzen 3 5300G</option>
+
+<option value="5">Ryzen 5 3600</option>
+<option value="5">Ryzen 5 4500</option>
+<option value="5">Ryzen 5 5500</option>
+<option value="6">Ryzen 5 5600</option>
+<option value="6">Ryzen 5 5600X</option>
+<option value="6">Ryzen 5 7600</option>
+<option value="7">Ryzen 5 7600X</option>
+<option value="7">Ryzen 5 9600X</option>
+
+<option value="6">Ryzen 7 3700X</option>
+<option value="7">Ryzen 7 5700X</option>
+<option value="8">Ryzen 7 5800X</option>
+<option value="8">Ryzen 7 5800X3D</option>
+<option value="8">Ryzen 7 7700X</option>
+<option value="9">Ryzen 7 7800X3D</option>
+<option value="9">Ryzen 7 9700X</option>
+<option value="10">Ryzen 7 9800X3D</option>
+
+<option value="8">Ryzen 9 5900X</option>
+<option value="8">Ryzen 9 5950X</option>
+<option value="9">Ryzen 9 7900X</option>
+<option value="9">Ryzen 9 7950X</option>
+<option value="10">Ryzen 9 7950X3D</option>
+<option value="10">Ryzen 9 9950X</option>
+<option value="10">Ryzen 9 9950X3D</option>
+
+</optgroup>
+
+<option value="9" selected>Core i9 / Ryzen 9 seviyesinde</option></select></div><div class="field"><label>GPU</label><select id="gpuB">
+
+<optgroup label="NVIDIA">
+
+<option value="2">GTX 1050</option>
+<option value="2">GTX 1050 Ti</option>
+<option value="3">GTX 1650</option>
+<option value="3">GTX 1660</option>
+<option value="4">GTX 1660 Ti</option>
+<option value="4">GTX 1660 Super</option>
+<option value="5">RTX 2060</option>
+<option value="5">RTX 2060 Super</option>
+<option value="5">RTX 2070</option>
+<option value="6">RTX 3060</option>
+<option value="6">RTX 3060 Ti</option>
+<option value="7">RTX 3070</option>
+<option value="7">RTX 3070 Ti</option>
+<option value="7">RTX 4060</option>
+<option value="8">RTX 4060 Ti</option>
+<option value="8">RTX 4070</option>
+<option value="8">RTX 4070 Super</option>
+<option value="9">RTX 4070 Ti Super</option>
+<option value="9">RTX 4080</option>
+<option value="10">RTX 4080 Super</option>
+<option value="10">RTX 4090</option>
+<option value="10">RTX 5090</option>
+
+</optgroup>
+
+
+<optgroup label="AMD Radeon">
+
+<option value="2">RX 550</option>
+<option value="2">RX 560</option>
+<option value="3">RX 570</option>
+<option value="4">RX 580</option>
+<option value="4">RX 590</option>
+<option value="5">RX 5600 XT</option>
+<option value="5">RX 5700 XT</option>
+<option value="6">RX 6600</option>
+<option value="6">RX 6650 XT</option>
+<option value="7">RX 6700 XT</option>
+<option value="7">RX 6750 XT</option>
+<option value="7">RX 7600</option>
+<option value="8">RX 7700 XT</option>
+<option value="8">RX 7800 XT</option>
+<option value="9">RX 7900 XT</option>
+<option value="10">RX 7900 XTX</option>
+
+</optgroup>
+
+
+<optgroup label="Intel Arc">
+
+<option value="3">Arc A380</option>
+<option value="4">Arc A580</option>
+<option value="5">Arc A750</option>
+<option value="6">Arc A770</option>
+<option value="7">Arc B570</option>
+<option value="8">Arc B580</option>
+
+</optgroup>
+
+<option value="9" selected>RTX 4080 / RX 7900</option></select></div><div class="field"><label>RAM</label><select id="ramB"><option value="8">8 GB</option><option value="16">16 GB</option><option value="32" selected>32 GB</option><option value="64">64 GB</option></select></div><div class="field"><label>BOŞ ALAN</label><select id="storageB"><option value="50">50 GB</option><option value="100">100 GB</option><option value="150" selected>150 GB</option><option value="250">250 GB</option><option value="500">500 GB</option></select></div></div></div>
+  </div>
+  <div class="compareResult"><div class="compareStat"><span>PC A FPS</span><strong id="compareFpsA">—</strong></div><div class="compareStat"><span>PC B FPS</span><strong id="compareFpsB">—</strong></div><div class="compareStat"><span>Durum</span><strong id="compareWinner">—</strong></div></div>
+</div></div>
+</section>
+
+<footer>CANRUN © 2026 · PC Game Requirement Analyzer · Tahmini değerler donanım skoru ve seçilen kaliteye göre hesaplanır.</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="modal" id="themeModal"><div class="modalCard"><div class="modalHead"><h3>🎨 Tema seç</h3><button class="close" id="closeTheme">✕</button></div><div class="themeGrid"><button class="themeOption" data-theme="dark"><div class="themeDot" style="background:#080b12"></div><b>Koyu</b><small style="display:block;color:var(--muted);margin-top:5px">CANRUN klasik tema</small></button><button class="themeOption" data-theme="light"><div class="themeDot" style="background:#eef2f8"></div><b>Açık</b><small style="display:block;color:var(--muted);margin-top:5px">Aydınlık arayüz</small></button></div></div></div>
+
+<script>
+const games = [
+
+
+["GTA V","Action · Open World","🚗",3,2,4,110,5,4,8],
+["GTA IV","Action · Open World","🚘",4,3,4,22,5,4,8],
+["Red Dead Redemption 2","Action · Open World","🤠",5,5,8,150,7,7,12],
+["Cyberpunk 2077","RPG · Open World","🌃",5,6,8,70,7,8,16],
+["The Witcher 3","RPG · Open World","⚔️",5,5,6,50,7,7,8],
+["Elden Ring","Action RPG","⚔️",5,5,6,60,7,7,16],
+["Black Myth: Wukong","Action RPG","🐒",7,7,8,130,8,8,16],
+["Hogwarts Legacy","RPG · Open World","🪄",5,5,6,85,7,7,16],
+["Starfield","RPG · Space","🚀",7,6,7,125,8,7,16],
+["Baldur's Gate 3","RPG","🐉",5,5,6,150,7,7,16],
+["Assassin's Creed Valhalla","Action · Open World","🗡️",5,5,6,160,7,7,16],
+["Assassin's Creed Mirage","Action · Stealth","🗡️",5,5,6,40,7,7,16],
+["Assassin's Creed Odyssey","Action · Open World","🏛️",5,5,6,110,7,7,16],
+["Assassin's Creed Origins","Action · Open World","🏺",5,4,6,45,7,6,8],
+["Far Cry 5","FPS · Open World","🔫",5,4,5,40,7,6,16],
+["Far Cry 6","FPS · Open World","🌴",5,5,6,170,7,7,16],
+["Watch Dogs 2","Action · Open World","💻",5,5,6,27,7,7,16],
+["Watch Dogs Legion","Action · Open World","💻",7,6,6,50,8,7,16],
+
+["Valorant","Competitive FPS","🎯",3,2,4,30,4,3,4],
+["Counter-Strike 2","Competitive FPS","💣",3,3,4,85,5,5,8],
+["Fortnite","Battle Royale","🚌",3,3,4,60,5,5,8],
+["PUBG","Battle Royale","🔫",5,4,8,40,6,5,16],
+["Apex Legends","Battle Royale","🚀",5,4,8,75,6,6,16],
+["Overwatch 2","Hero Shooter","🦾",3,3,4,50,5,5,8],
+["Rainbow Six Siege","Tactical FPS","🛡️",3,3,4,85,5,5,8],
+["Call of Duty Warzone","Battle Royale","💀",5,6,8,125,7,7,16],
+["Call of Duty MW II","FPS","🔫",5,6,8,125,7,7,16],
+["Call of Duty MW III","FPS","🔫",5,6,8,150,7,7,16],
+["Call of Duty Black Ops 6","FPS","🪖",5,6,8,125,7,7,16],
+["Battlefield 2042","FPS","💥",5,6,8,100,7,7,16],
+["Battlefield V","FPS","💥",5,5,6,95,6,6,12],
+["Battlefield 1","FPS","💥",5,4,6,80,6,5,8],
+["Titanfall 2","FPS","🤖",3,3,4,45,5,5,8],
+["DOOM Eternal","FPS","👹",3,4,6,80,5,6,8],
+["Metro Exodus","FPS","🚇",5,5,8,80,7,7,16],
+["STALKER 2","FPS · Survival","☢️",7,6,8,160,8,8,32],
+
+["Dying Light","Survival · Horror","🧟",3,3,4,40,5,5,8],
+["Dying Light 2","Survival · Horror","🧟",5,5,8,60,7,7,16],
+["Dead Island 2","Action · Horror","🧟",5,5,6,70,7,7,16],
+["Resident Evil 2","Horror","🧟",5,4,6,26,6,6,8],
+["Resident Evil 3","Horror","🧟",5,4,6,45,6,6,8],
+["Resident Evil 4","Horror · Action","🧟",5,5,6,67,7,7,16],
+["Resident Evil Village","Horror","🏚️",5,5,6,70,7,7,16],
+["Sons of the Forest","Survival · Horror","🌲",5,5,7,20,7,7,16],
+["The Forest","Survival","🌲",3,3,4,5,5,5,8],
+["Rust","Survival · Multiplayer","🏕️",5,5,6,35,7,7,16],
+["DayZ","Survival","☣️",5,4,6,25,6,6,16],
+["7 Days to Die","Survival","🧟",5,4,5,15,6,6,16],
+["ARK Survival Evolved","Survival","🦖",5,5,6,60,7,7,16],
+["ARK Survival Ascended","Survival","🦖",7,7,8,180,8,8,32],
+["Project Zomboid","Survival","🧟",3,2,3,8,4,3,8],
+["Lethal Company","Horror · Co-op","👽",3,2,3,1,4,3,4],
+["R.E.P.O.","Horror · Co-op","👻",3,3,4,2,5,5,8],
+
+["Minecraft","Sandbox","⛏️",3,2,2,10,5,4,8],
+["Minecraft Dungeons","Action","⛏️",3,2,4,6,5,4,8],
+["Terraria","Sandbox","🌳",2,1,2,1,3,2,4],
+["Roblox","Platform · Multiplayer","🟥",2,1,2,1,4,3,4],
+["Garry's Mod","Sandbox","🔧",3,2,3,20,4,4,8],
+["Unturned","Survival","🧟",2,1,2,4,3,3,4],
+
+["Rocket League","Sports","🚗",3,2,3,25,5,4,8],
+["EA Sports FC 24","Sports","⚽",3,3,4,100,5,5,8],
+["EA Sports FC 25","Sports","⚽",5,4,5,100,6,6,8],
+["NBA 2K25","Sports","🏀",5,4,6,150,6,6,16],
+
+["Euro Truck Simulator 2","Simulation","🚛",3,2,3,25,5,4,8],
+["American Truck Simulator","Simulation","🚛",3,2,3,25,5,4,8],
+["BeamNG.drive","Driving Simulation","🚗",5,4,5,50,7,6,16],
+["Assetto Corsa","Racing","🏎️",3,3,4,30,5,5,8],
+["Assetto Corsa Competizione","Racing","🏎️",5,5,6,50,7,7,16],
+["Forza Horizon 4","Racing","🏎️",5,5,6,110,7,6,16],
+["Forza Horizon 5","Racing","🏎️",5,5,6,110,7,7,16],
+["Need for Speed Heat","Racing","🏁",5,4,6,50,7,6,16],
+["Need for Speed Unbound","Racing","🏁",5,5,6,50,7,7,16],
+
+["Diablo IV","Action RPG","😈",5,4,6,90,7,7,16],
+["Path of Exile","ARPG","💀",3,3,4,40,5,5,8],
+["Path of Exile 2","ARPG","💀",5,5,6,100,7,7,16],
+["Destiny 2","FPS · Online","🌌",5,4,6,105,6,6,8],
+["Warframe","Action · Online","⚔️",3,2,4,50,5,5,8],
+["The Division 2","Shooter · RPG","🔫",5,5,6,85,7,7,16],
+
+["Sea of Thieves","Adventure · Online","🏴‍☠️",5,4,6,100,6,6,8],
+["Grounded","Survival","🐜",5,4,5,8,6,6,8],
+["Valheim","Survival","🛡️",3,2,3,1,5,4,8],
+["Palworld","Survival · RPG","🐾",5,5,6,40,7,7,16],
+["Enshrouded","Survival · RPG","🔥",5,5,7,60,7,7,16],
+
+["Star Wars Jedi Fallen Order","Action","⚔️",5,4,6,55,7,6,16],
+["Star Wars Jedi Survivor","Action","⚔️",7,6,8,155,8,7,16],
+["Horizon Zero Dawn","Action RPG","🏹",5,4,6,100,7,6,16],
+["Horizon Forbidden West","Action RPG","🏹",7,6,8,150,8,8,16],
+["God of War","Action","⚔️",5,5,6,70,7,7,16],
+["God of War Ragnarok","Action","⚔️",7,6,8,190,8,8,16],
+["Spider-Man Remastered","Action","🕷️",5,5,7,75,7,7,16],
+["Spider-Man Miles Morales","Action","🕷️",5,5,7,75,7,7,16],
+["The Last of Us Part I","Story · Action","🧟",7,6,8,100,8,8,16],
+["Uncharted Legacy of Thieves","Adventure","🗺️",5,5,7,126,7,7,16],
+
+["Sekiro","Action","⚔️",3,3,4,25,5,5,8],
+["Dark Souls III","Action RPG","⚔️",3,3,4,25,5,5,8],
+["Dark Souls Remastered","Action RPG","⚔️",3,2,3,8,5,4,4],
+["Lies of P","Action RPG","🤖",5,5,6,50,7,7,16],
+
+["Total War Warhammer III","Strategy","⚔️",5,5,6,120,7,7,16],
+["Civilization VI","Strategy","🏛️",3,2,3,17,5,4,8],
+["Age of Empires IV","Strategy","🏰",5,3,4,50,6,5,8],
+["Crusader Kings III","Strategy","👑",5,3,3,20,6,5,8],
+["Cities Skylines","Simulation","🏙️",5,3,4,25,7,5,8],
+["Cities Skylines II","Simulation","🏙️",7,6,8,60,8,8,16],
+
+["Monster Hunter World","Action RPG","🐲",5,5,6,52,7,7,8],
+["Monster Hunter Wilds","Action RPG","🐲",7,7,8,75,8,8,16],
+["Final Fantasy VII Remake","RPG","⚔️",5,5,6,100,7,7,16],
+["Final Fantasy XVI","RPG","⚔️",7,6,8,170,8,8,16],
+
+["Tekken 8","Fighting","🥊",5,5,7,100,7,7,16],
+["Street Fighter 6","Fighting","🥊",5,4,5,60,7,6,16],
+["Mortal Kombat 1","Fighting","☠️",5,5,6,100,7,7,8],
+
+["PAYDAY 2","Co-op FPS","💰",3,2,3,83,5,4,4],
+["PAYDAY 3","Co-op FPS","💰",5,5,6,65,7,7,16],
+["Left 4 Dead 2","Co-op FPS","🧟",2,1,2,13,3,3,4],
+["Back 4 Blood","Co-op FPS","🧟",5,4,6,40,6,6,12],
+
+["Phasmophobia","Horror · Co-op","👻",3,2,3,21,5,5,8],
+["Content Warning","Horror · Co-op","📹",3,2,3,4,4,4,8],
+["Dead by Daylight","Horror · Multiplayer","☠️",3,3,4,50,5,5,8],
+
+["Among Us","Party","🚀",2,1,2,1,3,2,4],
+["Goose Goose Duck","Party","🦆",2,1,2,2,3,2,4],
+["Human Fall Flat","Puzzle · Co-op","🤸",3,2,3,3,4,3,4],
+
+["Stardew Valley","Simulation","🌾",2,1,2,1,3,2,4],
+["Don't Starve Together","Survival","🔥",2,1,2,3,3,2,4],
+["RimWorld","Simulation","🏠",2,1,2,1,3,2,4],
+["Factorio","Automation","⚙️",2,1,2,3,4,3,4],
+["Satisfactory","Automation","🏭",5,4,5,20,6,6,16],
+
+["Subnautica","Survival","🌊",3,3,4,20,5,5,8],
+["Subnautica Below Zero","Survival","🌊",3,3,4,15,5,5,8],
+["No Man's Sky","Space · Survival","🚀",5,4,5,15,6,6,8],
+
+["The Sims 4","Simulation","🏠",3,2,3,26,4,4,8],
+["Planet Zoo","Simulation","🦁",5,4,5,16,6,5,16],
+
+["F1 24","Racing","🏎️",5,5,6,100,7,7,16],
+["F1 25","Racing","🏎️",5,5,7,100,7,7,16],
+
+["ARC Raiders","Extraction Shooter","🤖",5,7,8,100,7,8,16],
+["Escape from Tarkov","Extraction Shooter","🎒",7,6,8,30,8,7,16],
+["Arena Breakout Infinite","Extraction Shooter","🎒",5,5,7,70,7,7,16],
+["Hunt Showdown 1896","Extraction Shooter","🤠",5,5,6,75,7,7,16],
+
+["Marvel Rivals","Hero Shooter","🦸",5,5,6,70,7,7,16],
+["The Finals","FPS","💥",5,5,6,15,7,7,12],
+["Splitgate 2","FPS","🌀",3,3,4,25,5,5,8],
+["XDefiant","FPS","🎯",3,3,4,35,5,5,8],
+
+["Paladins","Hero Shooter","🛡️",3,2,3,30,5,4,8],
+["Team Fortress 2","FPS","🎩",2,1,2,15,3,3,4],
+["Fall Guys","Party","👑",3,2,3,2,5,4,8],
+
+["Sleeping Dogs","Action · Open World","🥋",3,2,3,20,5,4,4],
+["Mafia Definitive Edition","Action","🔫",5,4,5,50,6,6,8],
+["Mafia II Definitive Edition","Action","🔫",3,3,4,50,5,5,8],
+["Mafia III","Action · Open World","🔫",5,4,5,60,7,6,8],
+
+["Metro Last Light","FPS","🚇",3,2,4,10,5,4,8],
+["Metro 2033 Redux","FPS","🚇",3,2,3,10,5,4,8],
+["Control","Action","🌀",5,5,6,42,7,7,16],
+["Alan Wake 2","Horror","🔦",7,7,8,90,8,8,16]
+
+];
+
+const DB=games.map(g=>({name:g[0],genre:g[1],icon:g[2],minCPU:g[3],minGPU:g[4],minRAM:g[5],storage:g[6],recCPU:g[7],recGPU:g[8],recRAM:g[9]}));
+let currentGame=null, pcFilter=false;
+function readJSON(key, fallback=[]){try{const raw=localStorage.getItem(key);if(!raw)return fallback;const parsed=JSON.parse(raw);return Array.isArray(parsed)?parsed:fallback}catch{return fallback}}
+let recentGames=readJSON('canrunRecent');
+let favorites=readJSON('canrunFavorites');
+const $=id=>document.getElementById(id);
+const cpuMap=(v)=>v<=2?'Giriş seviyesi CPU':v<=3?'Core i3 / Ryzen 3':v<=5?'Core i5 / Ryzen 5':v<=7?'Core i5 / Ryzen 5 üstü':v<=8?'Core i7 / Ryzen 7':v<=9?'Core i7/i9 / Ryzen 7/9':'Üst seviye CPU';
+const gpuMap=(v)=>v<=2?'GTX 1050 / RX 560':v<=3?'GTX 1650 / RX 570':v<=4?'GTX 1660 / RX 580':v<=5?'RTX 2060 / RX 5600 XT':v<=6?'RTX 3060 / RX 6600':v<=7?'RTX 4060 / RX 7600':v<=8?'RTX 4070 / RX 7800 XT':v<=9?'RTX 4080 / RX 7900':'RTX 4090 / RTX 5090';
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),2200)}
+function gameByName(name){return DB.find(g=>g.name===name)}
+function saveState(){try{localStorage.setItem('canrunRecent',JSON.stringify(recentGames.slice(0,8)));localStorage.setItem('canrunFavorites',JSON.stringify(favorites))}catch(e){}}
+function isFav(name){return favorites.includes(name)}
+function markRecent(game){
+  if(!game)return;
+  recentGames=[game.name,...recentGames.filter(x=>x!==game.name)].filter(name=>gameByName(name)).slice(0,8);
+  saveState();
+  renderSideLists();
+}
+function pcFrom(prefix=''){return {cpu:+$(prefix?'cpu'+prefix:'cpu').value,gpu:+$(prefix?'gpu'+prefix:'gpu').value,ram:+$(prefix?'ram'+prefix:'ram').value,storage:+$(prefix?'storage'+prefix:'storage').value}}
+function analyze(game,pc,quality=1){
+  const storageEnough=pc.storage>=game.storage;
+  const cpuPct=Math.min(100,Math.round(pc.cpu/game.recCPU*100));
+  const gpuPct=Math.min(100,Math.round(pc.gpu/game.recGPU*100));
+  const ramPct=Math.min(100,Math.round(pc.ram/game.recRAM*100));
+  const storagePct=Math.min(100,Math.round(pc.storage/game.storage*100));
+  const minimumOK=pc.cpu>=game.minCPU && pc.gpu>=game.minGPU && pc.ram>=game.minRAM;
+  const score=Math.round(cpuPct*.25+gpuPct*.4+ramPct*.25+storagePct*.1);
+  const base=120*Math.min(pc.gpu/game.recGPU,1.3)*Math.min(pc.cpu/game.recCPU,1.2);
+  const fps=Math.max(15,Math.min(240,Math.round(base*quality)));
+  return {storageEnough,cpuPct,gpuPct,ramPct,storagePct,minimumOK,score,fps};
+}
+function statusClass(pct){return pct>=100?'pass':pct>=70?'warn':'fail'}
+function setScore(type,v){$(type+'Score').textContent=v+'%';$(type+'Fill').style.width=v+'%'}
+function render(list=DB){
+  const box=$('games');box.innerHTML='';$('count').textContent=list.length+' oyun';$('empty').style.display=list.length?'none':'block';
+  list.forEach((game,index)=>{
+    const div=document.createElement('div');div.className='game'+(currentGame?.name===game.name?' selected':'');div.style.animationDelay=Math.min(index*.02,.36)+'s';div.onclick=()=>selectGame(game);div.innerHTML=`<div class="art" style="background:linear-gradient(135deg,hsl(${index*17%360},55%,25%),#080b12)"></div><button class="favorite ${isFav(game.name)?'on':''}" title="Favori">${isFav(game.name)?'♥':'♡'}</button><div class="gameIcon">${game.icon}</div><div class="gameInfo"><h3>${game.name}</h3><p>${game.genre} · ${game.storage} GB</p></div>`;
+    div.querySelector('.favorite').onclick=e=>{e.stopPropagation();toggleFavorite(game)};box.appendChild(div);
+  });
+}
+function populateGenres(){const genres=[...new Set(DB.map(g=>g.genre.split(' · ')[0]))].sort();genres.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent='🗂️ '+g;$('genreFilter').appendChild(o)})}
+function getFiltered(){let list=[...DB];const q=$('search').value.toLowerCase().trim();const genre=$('genreFilter').value;const compat=$('compatFilter').value;if(q)list=list.filter(g=>(g.name+' '+g.genre).toLowerCase().includes(q));if(genre!=='all')list=list.filter(g=>g.genre.split(' · ')[0]===genre);const pc=pcFrom();if(pcFilter || compat!=='all'){list=list.filter(g=>{const a=analyze(g,pc,+$('quality').value);if(pcFilter)return a.storageEnough&&a.minimumOK&&a.score>=70;if(compat==='favorites')return isFav(g.name);if(compat==='canrun')return a.storageEnough&&a.minimumOK&&a.score>=70;if(compat==='maybe')return a.storageEnough&&a.minimumOK&&a.score<70;if(compat==='cannot')return !a.storageEnough||!a.minimumOK;return true})}const sort=$('sortSelect').value;if(sort==='name')list.sort((a,b)=>a.name.localeCompare(b.name));if(sort==='storageLow')list.sort((a,b)=>a.storage-b.storage);if(sort==='storageHigh')list.sort((a,b)=>b.storage-a.storage);if(sort==='fps')list.sort((a,b)=>analyze(b,pc,+$('quality').value).fps-analyze(a,pc,+$('quality').value).fps);if(sort==='recent')list.sort((a,b)=>{const ia=recentGames.indexOf(a.name),ib=recentGames.indexOf(b.name);const ra=ia===-1?999:ia,rb=ib===-1?999:ib;return ra-rb||a.name.localeCompare(b.name)});return list}
+function refreshGames(){render(getFiltered())}
+function selectGame(game){currentGame=game;markRecent(game);$('checker').scrollIntoView({behavior:'smooth',block:'start'});$('selectedIcon').textContent=game.icon;$('selectedIcon').classList.remove('pop');void $('selectedIcon').offsetWidth;$('selectedIcon').classList.add('pop');$('selectedName').textContent=game.name;$('selectedGenre').textContent=game.genre;$('minCPU').textContent=cpuMap(game.minCPU);$('minGPU').textContent=gpuMap(game.minGPU);$('minRAM').textContent=game.minRAM+' GB';$('minStorage').textContent=game.storage+' GB';$('recCPU').textContent=cpuMap(game.recCPU);$('recGPU').textContent=gpuMap(game.recGPU);$('recRAM').textContent=game.recRAM+' GB';$('recStorage').textContent=game.storage+' GB+';$('favoriteBtn').textContent=isFav(game.name)?'♥ Favorilerden çıkar':'❤️ Favoriye ekle';calculate();refreshGames()}
+function calculate(){if(!currentGame)return;const pc=pcFrom();const q=+$('quality').value;const a=analyze(currentGame,pc,q);setScore('cpu',a.cpuPct);setScore('gpu',a.gpuPct);setScore('ram',a.ramPct);setScore('storage',a.storagePct);$('cpuState').textContent=Math.round(a.cpuPct)+'%';$('cpuState').className=statusClass(a.cpuPct);$('gpuState').textContent=Math.round(a.gpuPct)+'%';$('gpuState').className=statusClass(a.gpuPct);$('ramState').textContent=Math.round(a.ramPct)+'%';$('ramState').className=statusClass(a.ramPct);$('storageState').textContent=Math.round(a.storagePct)+'%';$('storageState').className=statusClass(a.storagePct);$('overallScore').textContent=a.score;$('scoreRing').style.setProperty('--score',a.score);$('overallLabel').textContent=a.score>=85?'Güçlü oyun sistemi':a.score>=70?'Çoğu oyun için yeterli':a.score>=50?'Orta seviye, ayar gerekebilir':'Geliştirme önerilir';
+  if(!a.storageEnough){showResult('red','💾','Bu oyun bu bilgisayarda çalıştırılamaz','Oyunun kurulması için yeterli boş depolama alanı yok.','❌');}
+  else if(!a.minimumOK){showResult('red','✕','Bu oyun bu bilgisayarda çalıştırılamaz','Bilgisayarın oyunun minimum sistem gereksinimlerini karşılamıyor.','❌');}
+  else if(a.score<70){showResult('yellow','⚠','Oyun çalışır ama zorlanabilir','Grafik ayarlarını düşürerek daha stabil performans alabilirsin.',a.fps+' FPS');}
+  else{showResult('green','✓','Bu oyun bilgisayarında çalışır','Sistem gereksinimleri karşılanıyor.',a.fps+' FPS');}
+  updateFPS();updateAdvice(a);refreshCompare();
+}
+function showResult(color,icon,title,desc,fps){const r=$('result');r.className='result '+color;r.style.animation='none';void r.offsetWidth;r.style.animation='resultIn .4s ease';$('resultIcon').textContent=icon;$('resultTitle').textContent=title;$('resultDescription').textContent=desc;$('fps').textContent=fps}
+function updateFPS(){if(!currentGame)return;const qualities=[['Low',.65],['Medium',.8],['High',1],['Ultra',1.25]];$('fpsTable').innerHTML=qualities.map(([n,q])=>{const a=analyze(currentGame,pcFrom(),q);return `<div class="fpsBox"><span>${n}</span><strong>${a.fps} FPS</strong></div>`}).join('')}
+function updateAdvice(a){if(!currentGame)return;let quality='Medium';if(a.gpuPct<55)quality='Low';else if(a.gpuPct<75)quality='Medium';else if(a.gpuPct<100)quality='High';else quality='Ultra';$('settingsAdvice').textContent=`CANRUN tahminine göre ${quality} başlangıç ayarı uygun. ${a.gpuPct<a.cpuPct?'GPU daha çok yük altında olacağı için gölge/ışıklandırma ayarlarını düşürmek FPS kazandırabilir.':'CPU tarafı daha erken sınıra geliyor; kalabalık/NPC ve görüş mesafesi ayarlarını düşürmek daha etkili olabilir.'}`;const diff=Math.abs(a.cpuPct-a.gpuPct);$('bottleneckAdvice').textContent=diff<12?'CPU/GPU dengesi yakın görünüyor; belirgin bir taraf baskın değil.':a.gpuPct<a.cpuPct?`GPU tarafı daha düşük (${a.gpuPct}%). Grafik ayarlarını azaltmak performansı rahatlatabilir.`:`CPU tarafı daha düşük (${a.cpuPct}%). NPC, görüş mesafesi ve arka plan yükünü azaltmak yardımcı olabilir.`}
+function toggleFavorite(game=currentGame){if(!game)return toast('Önce bir oyun seç.');if(isFav(game.name))favorites=favorites.filter(x=>x!==game.name);else favorites.unshift(game.name);saveState();$('favoriteBtn').textContent=isFav(game.name)?'♥ Favorilerden çıkar':'❤️ Favoriye ekle';renderSideLists();refreshGames();toast(isFav(game.name)?'Favorilere eklendi ❤️':'Favorilerden çıkarıldı')}
+function renderSideLists(){
+  const fav=$('favoritesList');
+  const recent=$('recentList');
+  if(!fav || !recent)return;
+  fav.innerHTML=''; recent.innerHTML='';
+  favorites=favorites.filter(name=>gameByName(name));
+  recentGames=recentGames.filter(name=>gameByName(name));
+  saveState();
+  favorites.slice(0,5).forEach(name=>{const g=gameByName(name);if(g)fav.appendChild(listItem(g,'♥'))});
+  recentGames.slice(0,5).forEach(name=>{const g=gameByName(name);if(g)recent.appendChild(listItem(g,g.icon))});
+  if(!fav.children.length)fav.innerHTML='<div class="listItem"><small>Henüz favori yok.</small></div>';
+  if(!recent.children.length)recent.innerHTML='<div class="listItem"><small>Henüz geçmiş yok. Bir oyuna tıkla.</small></div>';
+}
+function listItem(g,ico){
+  const d=document.createElement('div');
+  d.className='listItem';
+  d.innerHTML=`<div class="left"><div class="ico">${ico}</div><div><b>${g.name}</b><small>${g.genre} · ${g.storage} GB</small></div></div><button class="btn small">Aç</button>`;
+  d.onclick=()=>selectGame(g);
+  d.querySelector('button').onclick=e=>{e.stopPropagation();selectGame(g)};
+  return d;
+}
+function savePc(){const profile={name:$('profileName').value.trim()||'Benim PC',...pcFrom()};localStorage.setItem('canrunPC',JSON.stringify(profile));updateBadge();toast('PC kaydedildi 💾');}
+function loadPc(silent=false){const raw=localStorage.getItem('canrunPC');if(!raw){if(!silent)toast('Kayıtlı PC bulunamadı.');return}const p=JSON.parse(raw);$('cpu').value=p.cpu;$('gpu').value=p.gpu;$('ram').value=p.ram;$('storage').value=p.storage;$('profileName').value=p.name||'';updateBadge();calculate();refreshGames();if(!silent)toast('Kayıtlı PC yüklendi 📥')}
+function updateBadge(){const raw=localStorage.getItem('canrunPC');$('profileBadge').textContent=raw?'PC: '+(JSON.parse(raw).name||'Kaydedildi'):'PC: Kaydedilmedi'}
+function myPcGames(){pcFilter=true;$('compatFilter').value='all';$('filterBanner').classList.add('on');refreshGames();window.scrollTo({top:$('games').getBoundingClientRect().top+scrollY-90,behavior:'smooth'});toast('Bilgisayarına uygun oyunlar gösteriliyor 🎯')}
+function resetFilters(){pcFilter=false;$('search').value='';$('genreFilter').value='all';$('sortSelect').value='name';$('compatFilter').value='all';$('filterBanner').classList.remove('on');refreshGames()}
+function buildCompare(prefix){return {cpu:+$(prefix+'cpu').value,gpu:+$(prefix+'gpu').value,ram:+$(prefix+'ram').value,storage:+$(prefix+'storage').value}}
+function comparePc(pc){if(!currentGame)return {fps:0,score:0,ok:false};const a=analyze(currentGame,pc,+$('quality').value);return {fps:a.fps,score:a.score,ok:a.storageEnough&&a.minimumOK}}
+function refreshCompare(){if(!currentGame){$('compareFpsA').textContent='—';$('compareFpsB').textContent='—';return}const a=comparePc(buildCompare('A')),b=comparePc(buildCompare('B'));$('compareFpsA').textContent=a.fps+' FPS';$('compareFpsB').textContent=b.fps+' FPS';$('compareScoreA').textContent=a.score+' puan';$('compareScoreB').textContent=b.score+' puan';$('compareWinner').textContent=a.score===b.score?'Eşit':a.score>b.score?'PC A':'PC B';$('compareWinner').className=a.score===b.score?'':a.score>b.score?'pass':'pass'}
+function swapCompare(){['cpu','gpu','ram','storage'].forEach(k=>{const a=$(k+'A').value,b=$(k+'B').value;$(k+'A').value=b;$(k+'B').value=a});refreshCompare();toast('PC A ve PC B değiştirildi ↔️')}
+function theme(name){document.body.classList.remove('light','lemonMode');if(name==='light')document.body.classList.add('light');localStorage.setItem('canrunTheme',name==='light'?'light':'dark')}
+function loadTheme(){const saved=localStorage.getItem('canrunTheme');theme(saved==='light'?'light':'dark')}
+
+$('clearRecentBtn').onclick=()=>{recentGames=[];saveState();renderSideLists();if($('sortSelect').value==='recent')refreshGames();toast('Son baktıkların temizlendi 🧹')};
+
+$('search').addEventListener('input',refreshGames);$('genreFilter').addEventListener('change',refreshGames);$('sortSelect').addEventListener('change',refreshGames);$('compatFilter').addEventListener('change',refreshGames);$('resetFilters').onclick=resetFilters;$('clearPcFilter').onclick=()=>{pcFilter=false;$('filterBanner').classList.remove('on');refreshGames()};$('findGamesBtn').onclick=myPcGames;$('myPcGamesBtn').onclick=myPcGames;$('savePcBtn').onclick=savePc;$('loadPcBtn').onclick=()=>loadPc();$('favoriteBtn').onclick=()=>toggleFavorite();['cpu','gpu','ram','storage','quality','targetFps'].forEach(id=>$(id).addEventListener('change',()=>{calculate();refreshGames()}));['cpuA','gpuA','ramA','storageA','cpuB','gpuB','ramB','storageB'].forEach(id=>$(id).addEventListener('change',refreshCompare));$('swapCompareBtn').onclick=swapCompare;
+
+$('themeBtn').onclick=()=>$('themeModal').classList.add('open');$('closeTheme').onclick=()=>$('themeModal').classList.remove('open');$('themeModal').addEventListener('click',e=>{if(e.target===$('themeModal'))$('themeModal').classList.remove('open')});document.querySelectorAll('.themeOption').forEach(b=>b.onclick=()=>{$('themeModal').classList.remove('open');theme(b.dataset.theme);toast('Tema değiştirildi 🎨')});
+
+let lemonClicks=0,lemonMode=false,lemonTimer=null;const lemonEgg=$('lemonEgg');lemonEgg.addEventListener('click',()=>{lemonEgg.classList.remove('pop');void lemonEgg.offsetWidth;lemonEgg.classList.add('pop');if(lemonMode){lemonMode=false;document.body.classList.remove('lemonMode');loadTheme();lemonClicks=0;clearTimeout(lemonTimer);return}lemonClicks++;clearTimeout(lemonTimer);if(lemonClicks===3){lemonMode=true;document.body.classList.remove('light');document.body.classList.add('lemonMode');lemonClicks=0;toast('🍋 Limon modu açıldı!');return}lemonTimer=setTimeout(()=>lemonClicks=0,1000)});
+
+populateGenres();render();renderSideLists();updateBadge();loadTheme();loadPc(true);if(!currentGame){const first=DB[0];/* Başlangıçta sadece liste göster */}
+</script>
+</body>
+</html>
